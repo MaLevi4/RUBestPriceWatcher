@@ -5,6 +5,7 @@ import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+
 def get_mvideo_price(url):
     cookies = {'MVID_TIMEZONE_OFFSET': "3", 'MVID_CITY_ID': "CityCZ_975", 'MVID_REGION_SHOP': "S002",
                'bIPs': "-1341531712",
@@ -12,47 +13,53 @@ def get_mvideo_price(url):
     response = requests.get(url, headers={'User-Agent': 'My User Agent 1.0'}, cookies=cookies)
     if response.status_code == 200:
         content = json.loads(response.text)
-        return (content['body']['materialPrices'][0]['price']['salePrice'])
+        return content['body']['materialPrices'][0]['price']['salePrice']
+
 
 def get_biggeek_price(url):
     response = requests.get(url, headers={'User-Agent': 'My User Agent 1.0'}, verify=False)
     if response.status_code == 200:
         matches_list = re.findall(
-            '\<div class\=\"product-price\"\>\s+\<span class\=\"price-value\"\>(\d+\s?\d*)\<\/span\>', response.text)
+            r'<div class=\"product-price\">\s+<span class=\"price-value\">(\d+\s?\d*)</span>', response.text)
         return int(matches_list[0].replace(' ', ''))
+
 
 def get_restore_price(url):
     response = requests.get(url, headers={'User-Agent': 'My User Agent 1.0'}, verify=False)
     if response.status_code == 200:
-        matches_list = re.findall('\"unitSalePrice\"\:(\d+)\,', response.text)
+        matches_list = re.findall(r'\"unitSalePrice\":(\d+),', response.text)
         return int(matches_list[0])
+
 
 def get_eldorado_price(url):
     response = requests.get(url, headers={'User-Agent': 'My User Agent 1.0'}, verify=False)
     if response.status_code == 200:
-        matches_list = re.findall('\,\"price\"\:\"(\d+)\"\,', response.text)
+        matches_list = re.findall(r',\"price\":\"(\d+)\",', response.text)
         return int(matches_list[0])
+
 
 def get_citilink_price(url):
     response = requests.get(url, headers={'User-Agent': 'My User Agent 1.0'}, verify=False)
     if response.status_code == 200:
-        matches_list = re.findall('\"price\"\:\s\"(\d+)\"\,', response.text)
+        matches_list = re.findall(r'\"price\":\s\"(\d+)\",', response.text)
         return int(matches_list[0])
+
 
 def get_ozon_price(url):
     response = requests.get(url, headers={'User-Agent': 'My User Agent 1.0'}, verify=False)
     if response.status_code == 200:
-        matches_list = re.findall('\,\"price\"\:\"(\d+)\"\,', response.text)
+        matches_list = re.findall(r',\"price\":\"(\d+)\",', response.text)
         return int(matches_list[0])
+
 
 def get_yamarket_price(url):
     return -1
+
 
 def get_dns_price(url):
     return -1
 
 
-shops = {}
 shops = {'M Video': {'func': get_mvideo_price, 'urls': ("https://www.mvideo.ru/bff/products/prices?productIds=30043367&isPromoApplied=true&addBonusRubles=true&isPricingEngineFinalPrice=true", "https://www.mvideo.ru/bff/products/prices?productIds=30043368&isPromoApplied=true&addBonusRubles=true&isPricingEngineFinalPrice=true", "https://www.mvideo.ru/bff/products/prices?productIds=30043366&isPromoApplied=true&addBonusRubles=true&isPricingEngineFinalPrice=true")},
          'BigGeek': {'func': get_biggeek_price, 'urls': ("https://biggeek.ru/products/apple-ipad-mini-2019-256gb-wi-fi-sellular-space-gray", "https://biggeek.ru/products/apple-ipad-mini-2019-256gb-wi-fi-sellular-silver", "https://biggeek.ru/products/apple-ipad-mini-2019-256gb-wi-fi-sellular-gold")},
          'Re Store': {'func': get_restore_price, 'urls': ("https://re-store.ru/catalog/MUXD2RU-A/", "https://re-store.ru/catalog/MUXE2RU-A/", "https://re-store.ru/catalog/MUXC2RU-A/")},
@@ -70,7 +77,7 @@ if __name__ == '__main__':
         print(f"--- {shop} ---")
         for url in shops[shop]['urls']:
             price = shops[shop]['func'](url)
-            print (price, url)
+            print(price, url)
 
             if price == -1:
                 continue
