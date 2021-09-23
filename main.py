@@ -35,6 +35,8 @@ def get_eldorado_price(url):
     response = requests.get(url, headers={'User-Agent': 'My User Agent 1.0'}, verify=False)
     if response.status_code == 200:
         matches_list = re.findall(r',\"price\":\"(\d+)\",', response.text)
+        if len(matches_list) == 0:
+            return -1
         return int(matches_list[0])
 
 
